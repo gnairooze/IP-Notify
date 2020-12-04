@@ -1,6 +1,7 @@
 ﻿using RestSharp;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,44 +12,22 @@ namespace IP_Notify
 {
     class Program
     {
+        static Serilog.Core.Logger _Logger;
+
         static void Main(string[] args)
         {
-            Notify().Wait();
-        }
-
-        static async Task Notify()
-        {
-            var ip = GetPublicIP();
-            var machineName = Environment.MachineName;
-            var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY", EnvironmentVariableTarget.Machine);
-            var client = new SendGridClient(apiKey);
-            var from = new EmailAddress("sender email as registered in send grid", "sender name");
-            var subject = $"{machineName} Public IP is {ip}";
-            
-            var tos = new List<EmailAddress>();
-            foreach (var item in Properties.Settings.Default.EmailTo)
+            _Logger = LogConfiguration.Setup(Properties.Settings.Default.LogFile);
+            try
             {
-                tos.Add(new EmailAddress(item));
+                SendMail.Notify(_Logger).Wait();
             }
-            
-            var plainTextContent = $"{machineName} Public IP is {ip}";
-            var htmlContent = $"<strong>{machineName}</strong> Public IP is <strong>{ip}</strong>";
-            
-            var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, tos, subject, plainTextContent, htmlContent);
-            var response = await client.SendEmailAsync(msg);
-            Console.WriteLine(response.StatusCode);
-            var result = response.Body.ReadAsStringAsync().Result;
-            Console.WriteLine(result);
-        }
+            catch (Exception ex)
+            {
+                _Logger.Error(ex, "Something wrong happened.");
+                
+            }
 
-        private static object GetPublicIP()
-        {
-            var url = Properties.Settings.Default.PublicIP_URL;
-            var client = new RestClient(url);
-
-            var response = client.Execute(new RestRequest());
-
-            return response.Content;
+            Log.CloseAndFlush();
         }
     }
 }
