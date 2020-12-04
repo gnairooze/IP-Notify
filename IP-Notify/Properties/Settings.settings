@@ -5,7 +5,8 @@
     <Setting Name="EmailTo" Type="System.Collections.Specialized.StringCollection" Scope="Application">
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;string&gt;george.nairooze@gmail.com&lt;/string&gt;
+  &lt;string&gt;example1@domain.com&lt;/string&gt;
+  &lt;string&gt;example2@domain.com&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="PublicIP_URL" Type="System.String" Scope="Application">
